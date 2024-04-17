@@ -1,3 +1,4 @@
+import re
 from htmlnode import HTMLNode, LeafNode, ParentNode
 
 text_type_text = "text"
@@ -37,3 +38,18 @@ def text_node_to_html_node(text_node):
     if text_node.text_type == text_type_image:
         return LeafNode("img", "", {"src=": text_node.url, "alt=": text_node.text})
     raise Exception(f"Invalid text type: {text_node.text_type}")
+
+
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    new_nodes = []
+    for node in old_nodes:
+        if not isinstance(node, TextNode):
+            new_nodes.append(split_nodes_delimiter(node, delimiter, text_type))
+        else:
+             line = node.text.split(delimiter)
+             for i in range(0, len(line)):
+                if i % 2 == 0:
+                     new_nodes.append(TextNode(line[i], node.text_type))
+                else:             
+                    new_nodes.append(TextNode(line[i], text_type))
+    return new_nodes 
