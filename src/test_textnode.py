@@ -39,11 +39,28 @@ class TestTextNode(unittest.TestCase):
         test_text = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
         matches = [("image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"), ("another", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png")]
         self.assertEqual(textnode.extract_markdown_images(test_text), matches)
+    
+    def test_extract_markdownd_images(self):
+        text = "This is a text without an image."
+        self.assertEqual(textnode.extract_markdown_images(text), [])
         
     def test_extrakt_markdown_links(self):
         test_text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
         matches = [("link", "https://www.example.com"), ("another", "https://www.example.com/another")]
         self.assertEqual(textnode.extract_markdown_links(test_text), matches)
+
+    def test_split_nodes_image(self):
+        node = TextNode(
+            "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+            textnode.text_type_text,
+        )
+        new_node = [
+            TextNode("This is text with an ", textnode.text_type_text),
+            TextNode("image", textnode.text_type_image, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+            TextNode(" and another ", textnode.text_type_text),
+            TextNode("second image", textnode.text_type_image, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png"),
+        ]
+        self.assertEqual(textnode.split_nodes_image(node), new_node)
 
 
 if __name__ == "__main__":
