@@ -34,7 +34,16 @@ class TestTextNode(unittest.TestCase):
             TextNode(" word", textnode.text_type_text),
         ]
         self.assertEqual(new_nodes, result)
-
+    
+    def test_extrakt_markdown_images(self):
+        test_text = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
+        matches = [("image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"), ("another", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png")]
+        self.assertEqual(textnode.extract_markdown_images(test_text), matches)
+        
+    def test_extrakt_markdown_links(self):
+        test_text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
+        matches = [("link", "https://www.example.com"), ("another", "https://www.example.com/another")]
+        self.assertEqual(textnode.extract_markdown_links(test_text), matches)
 
 
 if __name__ == "__main__":
