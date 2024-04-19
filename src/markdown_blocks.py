@@ -33,16 +33,56 @@ def markdown_to_blocks(markdown):
 
 def block_to_block_type(block):
     
+    # re.match(r'#+ (.+)', "Test\nThis is a test case.")
+
     # heading
+    if re.match(r'#+ (.+)', block):
+        return block_type_heading
     
     # code
-
+    elif re.match(r'```(.+)', block):
+        return block_type_code
+    
     # quote
+    elif re.match(r'>(.+)', block):
+        if not "\n" in block:
+            return block_type_quote
+        else:
+            for line in block.split("\n"):
+                if re.match(r'>(.+)', line):
+                    continue
+                else:
+                    break
+            else:
+                return block_type_quote
 
     # unordered list
+    elif re.match(r'\* (.*)', block) or re.match(r'- (.*)', block):
+        if not "\n" in block:
+            return block_type_unorderd_list
+        else:
+            for line in block.split("\n"):
+                if re.match(r'\* (.*)', line) or re.match(r'- (.*)', line):
+                    continue
+                else:
+                    break
+            else:
+                return block_type_unorderd_list
 
     # ordered list
+    elif re.match(r'\d\. (.*)', block):
+        if not "\n" in block:
+            return block_type_ordered_list
+        else:
+            i = 1
+            for line in block.split("\n"):
+                if i == int((re.match(r'(\d)\. .*', line)).group(1)):
+                    i +=1
+                    continue
+                break
+            else:
+                return block_type_ordered_list
+            
 
     # paragraph (if none of the other)
-
-    pass
+    return block_type_paragraph
