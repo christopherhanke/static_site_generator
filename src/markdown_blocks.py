@@ -33,9 +33,6 @@ def markdown_to_blocks(markdown):
 
 
 def block_to_block_type(block):
-    
-    # re.match(r'#+ (.+)', "Test\nThis is a test case.")
-
     # heading
     if re.match(r'#+ (.+)', block):
         return block_type_heading
@@ -45,7 +42,7 @@ def block_to_block_type(block):
         return block_type_code
     
     # quote
-    elif re.match(r'>(.+)', block):
+    elif re.match(r'> (.+)', block):
         if not "\n" in block:
             return block_type_quote
         else:
@@ -84,7 +81,6 @@ def block_to_block_type(block):
             else:
                 return block_type_ordered_list
             
-
     # paragraph (if none of the other)
     return block_type_paragraph
 
@@ -112,21 +108,24 @@ def markdown_to_html(markdown):
         elif block_type == block_type_ordered_list:
             ordered_list_to_html(block)
         elif block_type == block_type_heading:
-            continue
+            header_to_html(block)
         elif block_type == block_type_paragraph:
-            continue
+            LeafNode("p", block)
 
     pass
 
 def blockquote_to_html(markdown):
-    # return HTMLNode with type blockquote and and quote-text
+    # return LeafNode with type blockquote and and quote-text
     lines = markdown.split("\n")
-    items = []
-
-    pass
+    new_line = ""
+    for i in range(len(lines)):
+        new_line += lines[i].lstrip("> ")
+        if i < len(lines)-1:
+            new_line += "\n"
+    return LeafNode("blockquote", new_line)
 
 def unordered_list_to_html(markdown):
-    # return HTMLNode with type unordered list and list elements
+    # return ParentNode with type unordered list and list elements in children
     # split lines in markdown to get list items
     lines = markdown.split("\n")
     items = []
@@ -135,13 +134,22 @@ def unordered_list_to_html(markdown):
     return ParentNode("ul", items)
 
 def ordered_list_to_html(markdown):
-    # return HTMLNode with type ordered list and list elements
+    # return ParentNode with type ordered list and list elements in children
     lines = markdown.split("\n")
     items = []
     for line in lines:
-        print(re.match(r'(\d)\. .*', line))
-    pass
+        item = re.match(r'\d\. (.*)', line).group(1)
+        items.append(LeafNode("li", item))
+    return ParentNode("ol", items)
 
 def code_to_html(markdown):
-    # return HTMLNode with type code and code-text
-    pass
+    # return ParentNode with type code and code-text in children
+    code_block = (markdown.lstrip("` ")).rstrip("` ")
+    return ParentNode("pre", [LeafNode("code", code_block),])
+
+def header_to_html(markdown):
+    #return HTMLNode with type h* and header-text
+    matches = re.match(r'(#+) (.*)', markdown)
+    header = (matches.group(1)).count("#")
+    line = matches.group(2)
+    return LeafNode(f"h{header}", line)

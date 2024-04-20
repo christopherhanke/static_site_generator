@@ -9,7 +9,11 @@ from markdown_blocks import (
     block_type_unorderd_list,
     block_type_ordered_list,
     markdown_to_html,
-    unordered_list_to_html
+    unordered_list_to_html,
+    ordered_list_to_html,
+    code_to_html,
+    blockquote_to_html,
+    header_to_html,
 )
 from htmlnode import (
     HTMLNode,
@@ -37,11 +41,11 @@ class TestMarkdownBlocks(unittest.TestCase):
         self.assertEqual(block_to_block_type(block), block_type_code)
     
     def test_block_to_blocktype_quote(self):
-        block = ">This is a quote line"
+        block = "> This is a quote line"
         self.assertEqual(block_to_block_type(block), block_type_quote)
     
     def test_block_to_blocktype_quotelines(self):
-        block = ">This is a quote line\n>over two lines"
+        block = "> This is a quote line\n> over two lines"
         self.assertEqual(block_to_block_type(block), block_type_quote)
     
     def test_block_to_blocktype_unordered(self):
@@ -66,6 +70,29 @@ class TestMarkdownBlocks(unittest.TestCase):
     def test_unordered_list_to_html(self):
         text = "* This is a unordered list\n* with some lines\n* of text to split"
         result = ParentNode("ul", [LeafNode("li", "This is a unordered list", None), LeafNode("li", "with some lines", None), LeafNode("li", "of text to split", None)], None)
-        
         self.assertEqual(str(unordered_list_to_html(text)), str(result))
     
+    def test_ordered_list_to_html(self):
+        text = "1. This is an ordered list\n2. with some lines\n3. of text to split"
+        result = ParentNode("ol", [LeafNode("li", "This is an ordered list", None), LeafNode("li", "with some lines", None), LeafNode("li", "of text to split", None)], None)
+        self.assertEqual(str(ordered_list_to_html(text)), str(result))
+    
+    def test_code_to_html(self):
+        text = "```This is a code block.```"
+        result = ParentNode("pre", [LeafNode("code", "This is a code block.", None)], None)
+        self.assertEqual(str(code_to_html(text)), str(result))
+    
+    def test_blockquote_to_html(self):
+        text = "> This is a quote"
+        result = LeafNode("blockquote", "This is a quote")
+        self.assertEqual(str(blockquote_to_html(text)), str(result))
+
+    def test_blockquote_to_html_quotes(self):
+        text = "> This is a quote\n> with two lines"
+        result = LeafNode("blockquote", "This is a quote\nwith two lines")
+        self.assertEqual(str(blockquote_to_html(text)), str(result))
+    
+    def test_header_to_html(self):
+        text = "## This is a h2 Header"
+        result = LeafNode("h2", "This is a h2 Header", None)
+        self.assertEqual(str(header_to_html(text)), str(result))
