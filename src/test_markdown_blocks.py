@@ -7,8 +7,16 @@ from markdown_blocks import (
     block_type_code,
     block_type_quote,
     block_type_unorderd_list,
-    block_type_ordered_list
+    block_type_ordered_list,
+    markdown_to_html,
+    unordered_list_to_html
 )
+from htmlnode import (
+    HTMLNode,
+    LeafNode,
+    ParentNode
+)
+
 
 class TestMarkdownBlocks(unittest.TestCase):
     def test_markdown_to_blocks(self):
@@ -47,3 +55,17 @@ class TestMarkdownBlocks(unittest.TestCase):
     def test_block_to_blocktype_ordered_false(self):
         block = "1. This is an not so ordered list\n2. with some lines correct\n5. and some false"
         self.assertEqual(block_to_block_type(block), block_type_paragraph)
+
+    
+    def test_markdown_to_html(self):
+        text = "This is **bolded** paragraph\n\n This is another paragraph with *italic* text and `code` here \nThis is the same paragraph on a new line\n\n\n* This is a list\n* with items"
+        result =  None
+        markdown_to_html(text)
+        
+
+    def test_unordered_list_to_html(self):
+        text = "* This is a unordered list\n* with some lines\n* of text to split"
+        result = ParentNode("ul", [LeafNode("li", "This is a unordered list", None), LeafNode("li", "with some lines", None), LeafNode("li", "of text to split", None)], None)
+        
+        self.assertEqual(str(unordered_list_to_html(text)), str(result))
+    
