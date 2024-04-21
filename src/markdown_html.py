@@ -1,6 +1,7 @@
 import re
+from inline_markdown import text_to_textnodes
 from htmlnode import ParentNode, LeafNode
-from textnode import TextNode
+from textnode import TextNode, text_node_to_html_node
 from markdown_blocks import (
     block_type_paragraph,
     block_type_heading,
@@ -14,52 +15,63 @@ from markdown_blocks import (
 
 
 def markdown_to_html_node(markdown):
+    # make list of markdown blocks and list of markdown types
     md_blocks = markdown_to_blocks(markdown)
-    
-    # end of recursion, when markdwon is empty
-
-    block_types = []
+    md_block_types = []
     for block in md_blocks:
-        block_types.append(block_to_block_type(block))
-    
-    if len(md_blocks) != len(block_types):
+        md_block_types.append(block_to_block_type(block))
+    if len(md_blocks) != len(md_block_types):
         raise Exception("Invalid markdown, count of blocks does not equal count of block_type")
     
+    # make HTMLNodes equivalent to type
     items = []
-    print()
-    for block, block_type in zip(md_blocks, block_types):
-        print(f"Block: {block}")
+    for block, block_type in zip(md_blocks, md_block_types):
         if block_type == block_type_quote:
-            blockquote_to_html(block)
+            items.append(blockquote_to_html(block))
         elif block_type == block_type_unorderd_list:
             items.append(unordered_list_to_html(block))
         elif block_type == block_type_ordered_list:
-            ordered_list_to_html(block)
+            continue
         elif block_type == block_type_heading:
-            header_to_html(block)
+            continue
         elif block_type == block_type_paragraph:
-            LeafNode("p", block)
-
-    pass
+            continue
+    print("\n--- Test MD to HTML ---")
+    print(items)
+    print("--- End MD to HTML ---\n")
+    return ParentNode("div", items)
 
 def blockquote_to_html(markdown):
-    # return LeafNode with type blockquote and and quote-text
+    # return Parentnode of type blockquote
+    # strip text of leading ">" as markdown for quote
     lines = markdown.split("\n")
-    new_line = ""
+    text_nodes = []
+    html_nodes = []
     for i in range(len(lines)):
-        new_line += lines[i].lstrip("> ")
+        stripped_text = lines[i].lstrip("> ")
         if i < len(lines)-1:
-            new_line += "\n"
-    return LeafNode("blockquote", new_line)
+            stripped_text += "\n"
+        text_nodes.extend(text_to_textnodes(stripped_text))
+    for node in text_nodes:
+        html_nodes.append(text_node_to_html_node(node))
+    return ParentNode("blockquote", html_nodes)
+
 
 def unordered_list_to_html(markdown):
-    # return ParentNode with type unordered list and list elements in children
+    # return ParentNode of type unordered list and list elements in children
     # split lines in markdown to get list items
     lines = markdown.split("\n")
-    items = []
-    for line in lines:
-        items.append(LeafNode("li", line.lstrip("* ")))
-    return ParentNode("ul", items)
+    html_nodes = []
+    for i in range(len(lines)):
+        text_nodes = []
+        stripped_text = lines[i].lstrip("*- ")
+        text_nodes.extend(text_to_textnodes(stripped_text))
+        for j in range(len(text_nodes)):
+            html_node = text_node_to_html_node(text_nodes[j])
+            if j == 0:
+                html_node.tag = "li"
+            html_nodes.append(html_node)
+    return ParentNode("ul", html_nodes)    
 
 def ordered_list_to_html(markdown):
     # return ParentNode with type ordered list and list elements in children
@@ -68,6 +80,9 @@ def ordered_list_to_html(markdown):
     for line in lines:
         item = re.match(r'\d\. (.*)', line).group(1)
         items.append(LeafNode("li", item))
+    #print("\n--- Test OL ---")
+    #print(items)
+    #print("--- End OL ---\n")
     return ParentNode("ol", items)
 
 def code_to_html(markdown):
