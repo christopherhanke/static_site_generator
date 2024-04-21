@@ -16,9 +16,29 @@ from markdown_html import (
 class TestMarkdownHTML(unittest.TestCase):
     def test_markdown_to_html_node(self):
         text = "This is **bolded** paragraph\n\n This is another paragraph with *italic* text and `code` here \nThis is the same paragraph on a new line\n\n\n* This is a list\n* with items"
-        result =  None
-        markdown_to_html_node(text)
-        
+        result =  ParentNode(
+            "div", [
+                ParentNode(
+                    "p", [
+                        LeafNode(None, "This is ", None),
+                        LeafNode("b", "bolded", None), 
+                        LeafNode(None, " paragraph", None)
+                    ], None),
+                ParentNode(
+                    "p", [
+                        LeafNode(None, "This is another paragraph with ", None),
+                        LeafNode("i", "italic", None), 
+                        LeafNode(None, " text and ", None), 
+                        LeafNode("code", "code", None), 
+                        LeafNode(None, " here\nThis is the same paragraph on a new line", None)
+                    ], None), 
+                ParentNode(
+                    "ul", [
+                        LeafNode("li", "This is a list", None),
+                        LeafNode("li", "with items", None)
+                    ], None)
+                ], None)
+        self.assertEqual(str(markdown_to_html_node(text)), str(result))
 
     def test_unordered_list_to_html(self):
         text = "* This is a **unordered** list\n* with some lines\n* of text to split"
@@ -41,13 +61,21 @@ class TestMarkdownHTML(unittest.TestCase):
         self.assertEqual(str(ordered_list_to_html(text)), str(result))
     
     def test_code_to_html(self):
-        text = "```This is a code block.```"
-        result = ParentNode("pre", [LeafNode("code", "This is a code block.", None)], None)
+        text = "```This is a code block. With **some** text.```"
+        result = ParentNode("pre", [
+            ParentNode("code", [
+                LeafNode(None, "This is a code block. With ", None), 
+                LeafNode("b", "some", None), 
+                LeafNode(None, " text.", None)
+                ], None)
+            ], None)
         self.assertEqual(str(code_to_html(text)), str(result))
     
     def test_blockquote_to_html(self):
         text = "> This is a quote"
-        result = ParentNode("blockquote", [LeafNode(None, "This is a quote", None)], None)
+        result = ParentNode("blockquote", [
+            LeafNode(None, "This is a quote", None)
+            ], None)
         self.assertEqual(str(blockquote_to_html(text)), str(result))
 
     def test_blockquote_to_html_quotes(self):
@@ -60,5 +88,7 @@ class TestMarkdownHTML(unittest.TestCase):
     
     def test_header_to_html(self):
         text = "## This is a h2 Header"
-        result = LeafNode("h2", "This is a h2 Header", None)
+        result = ParentNode("h2", [
+            LeafNode(None, "This is a h2 Header", None)
+            ], None)
         self.assertEqual(str(header_to_html(text)), str(result))
