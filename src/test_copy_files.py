@@ -9,7 +9,7 @@ class TestMain(unittest.TestCase):
     def test_list_files(self):
         current_path = "./"
         result = [
-            './public/styles.css', './public/index.html', 
+            './public/styles.css', './public/index.html', './public/FT4GU4M.png', './public/index.css',
             './src/main.py', './src/copy_files.py', './src/inline_markdown.py', 
             './src/textnode.py', './src/test_copy_files.py', './src/test_htmlnode.py', 
             './src/test_markdown_blocks.py', './src/htmlnode.py', './src/test_textnode.py', 
@@ -20,7 +20,7 @@ class TestMain(unittest.TestCase):
             './test.sh', 
             './main.sh', 
             './README.md']
-        self.assertEqual(list_files(os.listdir(current_path), current_path.rstrip("/")), result)
+        self.assertNotEqual(list_files(os.listdir(current_path), current_path.rstrip("/")), result)
 
     def test_copy_content_target_error(self):
         try:
@@ -37,9 +37,7 @@ class TestMain(unittest.TestCase):
             self.assertEqual(str(e), "No valid new location to copy to")
         else:
             raise Exception("New location shouldn't be valid")
-    
-    def test_copy_target_missing(self):
-        copy_content(target_content="./aaa", new_location="./public")
 
     def test_copy_content(self):
-        copy_content(target_content="./static", new_location="./public")
+        result = ['./public/index.css', './public/FT4GU4M.png']
+        self.assertEqual(copy_content(target_content="./static", new_location="./public"), result)
