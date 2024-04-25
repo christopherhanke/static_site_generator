@@ -1,8 +1,9 @@
 from textnode import TextNode
+from generate_page import generate_page
 
 
 def main():
-    firstNode = TextNode("This is a text node", "bold", "https://www.boot.dev")
-    print(firstNode)
+    generate_page("./content/index.md", "./template.html", "./public/index.html")
+
 
 main()

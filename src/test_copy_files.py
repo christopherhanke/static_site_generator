@@ -5,7 +5,7 @@ from copy_files import (
     copy_content,
 )
 
-class TestMain(unittest.TestCase):
+class TestCopyFiles(unittest.TestCase):
     def test_list_files(self):
         current_path = "./"
         result = [

@@ -67,7 +67,7 @@ def unordered_list_to_html(markdown):
     html_nodes = []
     for i in range(len(lines)):
         text_nodes = []
-        stripped_text = lines[i].lstrip("*- ")
+        stripped_text = lines[i][2:]  #.lstrip("*- ")
         text_nodes.extend(text_to_textnodes(stripped_text))
         for j in range(len(text_nodes)):
             html_node = text_node_to_html_node(text_nodes[j])
