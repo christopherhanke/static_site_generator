@@ -68,6 +68,7 @@ def split_nodes_link(old_nodes):
             continue
         for link in links:
             sections = original_text.split(f"[{link[0]}]({link[1]})", 1)
+            print(f"Test link... {link[0]} -- {link[1]}")
             if len(sections) != 2:
                 raise ValueError("Invalid markdown, link section not closed")
             if sections[0] != "":
